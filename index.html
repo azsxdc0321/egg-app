@@ -7,75 +7,33 @@
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Microsoft JhengHei", sans-serif;
-            background-color: #f1f3f5;
-            margin: 0;
-            padding: 10px;
-            color: #333;
-            -webkit-user-select: none;
+            background-color: #f1f3f5; margin: 0; padding: 10px; color: #333; -webkit-user-select: none;
         }
         .app-container {
-            max-width: 600px;
-            margin: 0 auto;
-            background-color: #fff;
-            padding: 12px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            max-width: 600px; margin: 0 auto; background-color: #fff; padding: 12px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
-        .app-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #673ab7;
-            padding-bottom: 8px;
-            margin-bottom: 12px;
-        }
+        .app-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #673ab7; padding-bottom: 8px; margin-bottom: 12px; }
         h2 { color: #673ab7; margin: 0; font-size: 18px; }
-        .btn-reset {
-            background-color: #e53935; color: white; border: none;
-            padding: 6px 12px; font-size: 12px; font-weight: bold;
-            border-radius: 6px; cursor: pointer;
-        }
-        /* 📸 手機拍照按鈕美化 */
-        .camera-section {
-            background-color: #f3e5f5;
-            border: 2px dashed #9c27b0;
-            border-radius: 8px;
-            padding: 12px;
-            text-align: center;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
-        .btn-media {
-            background-color: #9c27b0; color: white; border: none;
-            padding: 10px 16px; font-size: 14px; font-weight: bold;
-            border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px;
-        }
-        .btn-media:active { background-color: #7b1fa2; }
-        #loadingStatus {
-            display: none; font-size: 13px; color: #e65100; font-weight: bold; margin-top: 5px;
-        }
-        .table-responsive {
-            width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 12px;
-        }
+        .btn-reset { background-color: #e53935; color: white; border: none; padding: 6px 12px; font-size: 12px; font-weight: bold; border-radius: 6px; cursor: pointer; }
+        .camera-section { background-color: #f3e5f5; border: 2px dashed #9c27b0; border-radius: 8px; padding: 12px; text-align: center; margin-bottom: 12px; display: flex; justify-content: center; gap: 10px; }
+        .btn-media { background-color: #9c27b0; color: white; border: none; padding: 10px 16px; font-size: 14px; font-weight: bold; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+        #loadingStatus { display: none; font-size: 13px; color: #e65100; font-weight: bold; margin-top: 5px; }
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 12px; }
         table { width: 100%; border-collapse: collapse; font-size: 13px; }
         th, td { border: 1px solid #e0e0e0; padding: 8px 4px; text-align: center; }
         th { background-color: #5c6bc0; color: #fff; font-weight: bold; }
-        .th-write { background-color: #5c6bc0; }
-        .th-price { background-color: #ab47bc; }
-        .th-calc { background-color: #26a69a; }
-        input[type="number"] {
-            width: 55px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; text-align: center; font-size: 13px;
-        }
-        /* 選單與總結 */
+        .th-write { background-color: #5c6bc0; } .th-price { background-color: #ab47bc; } .th-calc { background-color: #26a69a; }
+        input[type="number"] { width: 55px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; text-align: center; font-size: 13px; }
+        /* 🌟 單選鈕美化加大，方便手機用手指點選 */
+        .batch-radio { width: 20px; height: 20px; cursor: pointer; vertical-align: middle; }
         .price-select { padding: 4px 6px; font-size: 13px; font-weight: bold; color: #4a148c; border: 2px solid #ab47bc; border-radius: 4px; }
         .total-row td { background-color: #f3e5f5 !important; font-weight: bold; color: #4a148c; }
         .purify-row td { background-color: #fff9c4 !important; font-weight: bold; color: #b71c1c; }
         .purify-subamt { font-size: 10px; color: #666; display: block; font-weight: normal; }
-        .summary-banner {
-            background-color: #fff59d; border: 1px solid #fbc02d; padding: 12px;
-            border-radius: 8px; font-size: 15px; font-weight: bold; color: #b71c1c; text-align: center; margin-top: 8px;
+        .summary-banner { background-color: #fff59d; border: 1px solid #fbc02d; padding: 12px; border-radius: 8px; font-size: 15px; font-weight: bold; color: #b71c1c; text-align: center; margin-top: 8px; }
+        @media screen and (max-width: 768px) {
+            th, td { padding: 6px 2px; font-size: 12px; }
+            input[type="number"] { width: 45px; font-size: 12px; }
         }
     </style>
 </head>
@@ -86,11 +44,9 @@
         <button class="btn-reset" onclick="resetAll()">歸零重設</button>
     </div>
 
-    <!-- 📸 相機與相簿調用區 -->
     <div class="camera-section">
         <button class="btn-media" onclick="document.getElementById('cameraInput').click()">📸 打開相機</button>
         <button class="btn-media" style="background-color:#4caf50;" onclick="document.getElementById('galleryInput').click()">🖼️ 選擇相片</button>
-        <!-- 隱藏的手機原生調用標籤 -->
         <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;" onchange="handleImage(this)">
         <input type="file" id="galleryInput" accept="image/*" style="display:none;" onchange="handleImage(this)">
         <div id="loadingStatus">⏳ AI 正在精準辨識手寫字，請稍候...</div>
@@ -100,6 +56,7 @@
         <table>
             <thead>
                 <tr>
+                    <th class="th-write" style="width:40px;">圈選</th>
                     <th class="th-write">批次</th>
                     <th class="th-write">入孵總好蛋</th>
                     <th class="th-write">好蛋 (顆)</th>
@@ -115,6 +72,8 @@
                     for(let i=1; i<=7; i++) {
                         document.write(`
                             <tr class="data-row">
+                                <!-- 🌟 新增圈選單選鈕，預設第一批勾選 -->
+                                <td><input type="radio" name="targetBatch" class="batch-radio" value="${i-1}" ${i===1 ? 'checked' : ''}></td>
                                 <td style="color:#1a237e;"><b>第 ${i} 批</b></td>
                                 <td><input type="number" class="egg-total-input" value="0" min="0" oninput="calculateAll()"></td>
                                 <td><input type="number" class="good-input" value="0" min="0" oninput="calculateAll()"></td>
@@ -122,8 +81,16 @@
                                 ${i === 1 ? `
                                 <td rowspan="7" style="background-color:#f3e5f5;">
                                     <select id="globalPrice" class="price-select" onchange="calculateAll()">
-                                        <option value="20" selected>20</option>
-                                        ${Array.from({length:26}, (_,k)=>k+10).filter(n=>n!==20).map(n=>`<option value="${n}">${n}</option>`).join('')}
+                                        <option value="0" selected>結價</option>
+                                        <option value="10">10</option><option value="11">11</option><option value="12">12</option>
+                                        <option value="13">13</option><option value="14">14</option><option value="15">15</option>
+                                        <option value="16">16</option><option value="17">17</option><option value="18">18</option>
+                                        <option value="19">19</option><option value="20">20</option><option value="21">21</option>
+                                        <option value="22">22</option><option value="23">23</option><option value="24">24</option>
+                                        <option value="25">25</option><option value="26">26</option><option value="27">27</option>
+                                        <option value="28">28</option><option value="29">29</option><option value="30">30</option>
+                                        <option value="31">31</option><option value="32">32</option><option value="33">33</option>
+                                        <option value="34">34</option><option value="35">35</option>
                                     </select>
                                 </td>
                                 ` : ''}
@@ -135,7 +102,7 @@
                     }
                 </script>
                 <tr class="total-row">
-                    <td>總計</td>
+                    <td colspan="2">總計</td>
                     <td id="totalEggsText">0 顆</td>
                     <td id="totalGoodText">0 顆</td>
                     <td id="totalBadText">0 顆</td>
@@ -145,8 +112,7 @@
                     <td id="avgDeadRate">0.00%</td>
                 </tr>
                 <tr class="purify-row">
-                    <td>結算</td>
-                    <td>-</td>
+                    <td colspan="2">結算</td>
                     <td><div id="purifyGoodQty" style="font-weight:bold;">0 顆</div><div id="purifyGoodAmt" class="purify-subamt">$0</div></td>
                     <td><div id="purifyBadQty" style="font-weight:bold;">0 顆</div><div id="purifyBadAmt" class="purify-subamt">$0</div></td>
                     <td style="color:#333; font-weight:normal;">總收入</td>
@@ -158,25 +124,20 @@
     <div class="summary-banner" id="summaryBanner">💰 實質結算新台幣：0 元 ｜ ✅ 完美連動！</div>
 </div>
 <script>
-// 🌟 請在此處填入您申請到的 Google Cloud Vision API 金鑰
 const GOOGLE_API_KEY = "YOUR_GOOGLE_API_KEY_HERE";
 
-// 處理相機拍照或圖庫選取的圖片
 function handleImage(input) {
     if (!input.files || !input.files[0]) return;
     const file = input.files[0];
     document.getElementById('loadingStatus').style.display = 'block';
-
     const reader = new FileReader();
     reader.onload = function (e) {
-        // 將圖片轉為 base64 編碼並剔除標頭
         const base64Image = e.target.result.split(',')[1];
         sendToGoogleVision(base64Image);
     };
     reader.readAsDataURL(file);
 }
 
-// 將圖片上傳至 Google 雲端 AI 進行繁體中文手寫辨識
 function sendToGoogleVision(base64Image) {
     const url = `https://googleapis.com{GOOGLE_API_KEY}`;
     const requestData = {
@@ -185,7 +146,6 @@ function sendToGoogleVision(base64Image) {
             features: [{ type: "TEXT_DETECTION" }]
         }]
     };
-
     fetch(url, {
         method: "POST",
         body: JSON.stringify(requestData),
@@ -195,58 +155,51 @@ function sendToGoogleVision(base64Image) {
     .then(data => {
         document.getElementById('loadingStatus').style.display = 'none';
         if (data.responses && data.responses[0].fullTextAnnotation) {
-            const detectedText = data.responses[0].fullTextAnnotation.text;
-            console.log("AI 辨識文本結果：", detectedText);
-            parseAndFillData(detectedText);
+            parseAndFillData(data.responses[0].fullTextAnnotation.text);
         } else {
             alert("⚠️ 辨識失敗，請確保手寫字跡清晰且光線充足。");
         }
     })
     .catch(err => {
         document.getElementById('loadingStatus').style.display = 'none';
-        alert("網路連線錯誤或 API 金鑰失效。");
+        alert("網路連線錯誤。");
         console.error(err);
     });
 }
 
-// 智能解讀文字演算法 (對應手寫格式)
 function parseAndFillData(text) {
     let goodEgg = 0, badEgg = 0, totalEgg = 0;
-
-    // 1. 抓取破蛋/次蛋數量 (找「破」或「次」後面的數字)
     const badMatch = text.match(/(?:破|次)[:：\s]*(\d+)/);
     if (badMatch) badEgg = parseInt(badMatch[1]);
-
-    // 2. 抓取總數 (找等號「=」後面的總和數字)
     const totalMatch = text.match(/=\s*(\d+)/);
     if (totalMatch) totalEgg = parseInt(totalMatch[1]);
-
-    // 3. 如果有抓到總數與次蛋，自動扣除得到好蛋
     if (totalEgg > 0 && badEgg > 0) {
         goodEgg = totalEgg - badEgg;
     } else {
-        // 備用方案：抓取前段加號前的數字
         const numList = text.match(/\d+/g);
         if (numList && numList.length >= 2) goodEgg = parseInt(numList[0]);
     }
 
-    // 將偵測到的數字塞進第 1 批 (第一列) 的輸入框中
+    // 🌟 核心修正：改用單選鈕的選中狀態，手機拍完照後絕對不會跑掉
+    const checkedRadio = document.querySelector('input[name="targetBatch"]:checked');
+    const targetIdx = checkedRadio ? parseInt(checkedRadio.value) : 0;
     const rows = document.querySelectorAll('.data-row');
-    if (rows.length > 0) {
-        rows[0].querySelector('.egg-total-input').value = totalEgg || (goodEgg + badEgg);
-        rows[0].querySelector('.good-input').value = goodEgg;
-        rows[0].querySelector('.bad-input').value = badEgg;
+    
+    if (rows[targetIdx]) {
+        const targetRow = rows[targetIdx];
+        targetRow.querySelector('.egg-total-input').value = totalEgg || (goodEgg + badEgg);
+        targetRow.querySelector('.good-input').value = goodEgg;
+        targetRow.querySelector('.bad-input').value = badEgg;
         calculateAll();
-        alert(`🎉 辨識填寫成功！\n已為您填入第 1 批：\n入孵總好蛋: ${totalEgg}\n好蛋: ${goodEgg}\n次蛋: ${badEgg}`);
+        alert(`🎉 辨識成功！數據已自動填入【第 ${targetIdx + 1} 批】。`);
     }
 }
 
-// 基礎記憶體與連動運算核心
 window.onload = function() {
     const savedData = localStorage.getItem('phoneEggAppData');
     if (savedData) {
         const data = JSON.parse(savedData);
-        document.getElementById('globalPrice').value = data.price || 20;
+        document.getElementById('globalPrice').value = data.price || 0;
         const rows = document.querySelectorAll('.data-row');
         rows.forEach((row, idx) => {
             if(data.rows && data.rows[idx]) {
@@ -255,13 +208,23 @@ window.onload = function() {
                 row.querySelector('.bad-input').value = data.rows[idx].bad;
             }
         });
+        // 讀取上次勾選的批次位置
+        if(data.selectedRadioIdx !== undefined) {
+            const radios = document.querySelectorAll('input[name="targetBatch"]');
+            if(radios[data.selectedRadioIdx]) radios[data.selectedRadioIdx].checked = true;
+        }
     }
     calculateAll();
 };
 
 function calculateAll() {
-    const price = parseInt(document.getElementById('globalPrice').value) || 20;
-    document.getElementById('purifyPriceText').innerText = 'X ' + price;
+    const price = parseInt(document.getElementById('globalPrice').value) || 0;
+    if (price === 0) {
+        document.getElementById('purifyPriceText').innerText = '請選單價';
+    } else {
+        document.getElementById('purifyPriceText').innerText = 'X ' + price;
+    }
+
     const rows = document.querySelectorAll('.data-row');
     let sumTotalEggs = 0, sumGood = 0, sumBad = 0, sumIncome = 0, storageArray = [];
 
@@ -275,27 +238,28 @@ function calculateAll() {
         const bCalc = Math.round(bad * 0.33);
         const rowIncome = (gCalc + bCalc) * price;
 
-        let inputRate = 0, hatchRate = 0, outRate = 0, deadRate = 0;
+        let outRate = 0, deadRate = 0;
         if (totalEggs > 0) {
-            inputRate = (good / totalEggs) * 100;
-            hatchRate = ((good + bad) / totalEggs) * 100;
             outRate = (gCalc / totalEggs) * 100;
             deadRate = (bCalc / totalEggs) * 100;
         }
 
-        row.querySelector('.r-income').innerText = rowIncome.toLocaleString() + '元';
+        row.querySelector('.r-income').innerText = price === 0 ? "請選單價" : rowIncome.toLocaleString() + '元';
         row.querySelector('.r-out-rate').innerText = outRate.toFixed(2) + '%';
         row.querySelector('.r-dead-rate').innerText = deadRate.toFixed(2) + '%';
 
         sumTotalEggs += totalEggs; sumGood += good; sumBad += bad; sumIncome += rowIncome;
     });
 
-    localStorage.setItem('phoneEggAppData', JSON.stringify({ price, rows: storageArray }));
+    // 儲存當前數據與勾選的單選鈕位置
+    const activeRadio = document.querySelector('input[name="targetBatch"]:checked');
+    const selectedRadioIdx = activeRadio ? parseInt(activeRadio.value) : 0;
+    localStorage.setItem('phoneEggAppData', JSON.stringify({ price, rows: storageArray, selectedRadioIdx }));
 
     document.getElementById('totalEggsText').innerText = sumTotalEggs.toLocaleString() + ' 顆';
     document.getElementById('totalGoodText').innerText = sumGood.toLocaleString() + ' 顆';
     document.getElementById('totalBadText').innerText = sumBad.toLocaleString() + ' 顆';
-    document.getElementById('totalIncomeText').innerText = sumIncome.toLocaleString() + '元';
+    document.getElementById('totalIncomeText').innerText = price === 0 ? "請選單價" : sumIncome.toLocaleString() + '元';
 
     const finalGoodQty = Math.round(sumGood * 0.75);
     const finalBadQty = Math.round(sumBad * 0.33);
@@ -305,7 +269,7 @@ function calculateAll() {
     document.getElementById('purifyGoodAmt').innerText = '$' + (finalGoodQty * price).toLocaleString();
     document.getElementById('purifyBadQty').innerText = finalBadQty.toLocaleString() + ' 顆';
     document.getElementById('purifyBadAmt').innerText = '$' + (finalBadQty * price).toLocaleString();
-    document.getElementById('purifyTotalIncome').innerText = finalTotalIncome.toLocaleString() + '元';
+    document.getElementById('purifyTotalIncome').innerText = price === 0 ? "請選單價" : finalTotalIncome.toLocaleString() + '元';
 
     let avgOutRate = 0, avgDeadRate = 0;
     if (sumTotalEggs > 0) {
@@ -314,14 +278,21 @@ function calculateAll() {
     }
     document.getElementById('avgOutRate').innerText = avgOutRate.toFixed(2) + '%';
     document.getElementById('avgDeadRate').innerText = avgDeadRate.toFixed(2) + '%';
-    document.getElementById('summaryBanner').innerHTML = '💰 實質結算新台幣：' + finalTotalIncome.toLocaleString() + ' 元 ｜ ✅ 完美連動！';
+    
+    if (price === 0) {
+        document.getElementById('summaryBanner').innerHTML = '⚠️ <b>請選擇雛雞單價</b> ｜ 表格已鎖定';
+    } else {
+        document.getElementById('summaryBanner').innerHTML = '💰 實質結算新台幣：<span style="font-size:20px; text-decoration:underline;">' + finalTotalIncome.toLocaleString() + '</span> 元 ｜ ✅ 完美連動！';
+    }
 }
 
 function resetAll() {
     if(confirm('⚠️ 確定要全部清空重來嗎？')) {
         localStorage.removeItem('phoneEggAppData');
-        document.getElementById('globalPrice').value = 20;
+        document.getElementById('globalPrice').value = 0;
         document.querySelectorAll('input[type="number"]').forEach(input => input.value = 0);
+        const radios = document.querySelectorAll('input[name="targetBatch"]');
+        if(radios[0]) radios[0].checked = true;
         calculateAll();
     }
 }
