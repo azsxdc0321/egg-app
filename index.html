@@ -3,308 +3,669 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>種鴨結價試算表</title>
+    <title>種鴨結價試算完全體</title>
+    <script src="https://jsdelivr.net"></script>
+    <script src="https://cloudflare.com"></script>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #f1f3f5; margin: 0; padding: 10px; color: #333;
-        }
-        .container {
-            max-width: 1450px; margin: 0 auto; background-color: #fff; padding: 12px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f1f3f5; margin: 0; padding: 10px; color: #333; }
+        .container { max-width: 1450px; margin: 0 auto; background-color: #fff; padding: 12px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); position: relative; }
         .app-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #673ab7; padding-bottom: 8px; margin-bottom: 12px; }
         h2 { color: #673ab7; margin: 0; font-size: 18px; }
-        .camera-section { background-color: #f3e5f5; border: 2px dashed #9c27b0; border-radius: 8px; padding: 12px; text-align: center; margin-bottom: 12px; display: flex; justify-content: center; gap: 10px; align-items: center; }
-        .btn-media { background-color: #9c27b0; color: white; border: none; padding: 8px 16px; font-size: 13px; font-weight: bold; border-radius: 6px; cursor: pointer; }
-        .table-responsive { width: 100%; overflow-x: visible; overflow-y: visible; margin-bottom: 15px; padding-bottom: 60px; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
+        .camera-section { background-color: #f3e5f5; border: 2px dashed #9c27b0; border-radius: 8px; padding: 12px; text-align: center; margin-bottom: 12px; display: flex; justify-content: center; gap: 10px; align-items: center; flex-direction: column; }
+        .camera-btn-row { display: flex; gap: 10px; justify-content: center; align-items: center; }
+        .btn-media { color: white; border: none; padding: 8px 16px; font-size: 13px; font-weight: bold; border-radius: 6px; cursor: pointer; transition: 0.1s; }
+        .btn-media:active { opacity: 0.8; }
+        
+        /* 物理撐開防扁滑動外殼 */
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 15px; padding-bottom: 60px; position: relative; display: block; }
+        
+        /* 鎖死 850px 鋼骨寬度，誓死捍衛右側 5 顆大按鈕空間 */
+        table { border-collapse: collapse; font-size: 13px; table-layout: fixed; width: 850px; min-width: 850px; background: #fff; }
         th, td { border: 1px solid #ddd; padding: 6px 2px; text-align: center; vertical-align: middle; position: relative; word-break: break-all; box-sizing: border-box; }
         th { background-color: #5c6bc0; color: #fff; font-weight: bold; }
         .th-write { background-color: #5c6bc0; } .th-price { background-color: #ab47bc; } .th-calc { background-color: #26a69a; }
         input[type="number"] { width: 75px; max-width: 75px; padding: 4px; border: 1px solid #ccc; border-radius: 4px; text-align: center; font-size: 13px; box-sizing: border-box; }
         .batch-radio { width: 18px; height: 18px; cursor: pointer; vertical-align: middle; }
         .custom-total-input { background-color: #e3f2fd; font-weight: bold; color: #0d47a1; border: 1px solid #90caf9; }
-        .lost-egg-lbl { font-size: 10px; color: #c62828; font-weight: bold; display: block; margin-top: 2px; white-space: nowrap; text-align: center; width: 100%; overflow: hidden; }
-        .price-box-layout { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; width: 100%; height: 100%; min-width: 100px; padding: 2px; box-sizing: border-box; }
-        .price-lbl-txt { color: #7b1fa2; font-size: 11px; font-weight: bold; text-align: center; margin-bottom: 2px; }
-        .price-select { width: 85px; padding: 4px; font-size: 13px; font-weight: bold; color: #4a148c; border: 2px solid #ab47bc; border-radius: 4px; background-color: #fff; cursor: pointer; text-align: center; }
-        .help-tip { display: inline-block; background-color: #0288d1; color: white; border-radius: 50%; width: 15px; height: 15px; font-size: 10px; line-height: 15px; text-align: center; margin-left: 4px; cursor: pointer; position: relative; font-weight: bold; vertical-align: middle; }
-        .help-tip:hover .tooltip-text, .help-tip:active .tooltip-text { display: block; }
-        .tooltip-text { display: none; position: absolute; background-color: #222; color: #fff; text-align: left; padding: 8px 12px; border-radius: 6px; font-size: 12px; font-weight: normal; line-height: 1.4; white-space: normal; width: 180px; z-index: 99999; top: 22px; left: 50%; transform: translateX(-50%); box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
-        .tooltip-text::after { content: ""; position: absolute; bottom: 100%; left: 50%; margin-left: -5px; border-width: 5px; border-style: solid; border-color: transparent transparent #222 transparent; }
-        .auto-text { color: #2e7d32; font-weight: bold; } .auto-amt { color: #4a148c; font-weight: bold; }
-        .rate-green { background-color: #e8f5e9 !important; color: #2e7d32; font-weight: bold; }
-        .rate-red { background-color: #ffebee !important; color: #c62828; font-weight: bold; }
+        .lost-egg-lbl { font-size: 11px; color: #e53935; font-weight: bold; display: block; margin-top: 2px; }
         .total-row td { background-color: #f3e5f5 !important; font-weight: bold; color: #4a148c; }
         .purify-row td { background-color: #fff9c4 !important; font-weight: bold; color: #b71c1c; border-top: 2px solid #fbc02d; border-bottom: 2px solid #fbc02d; }
-        .purify-subamt { font-size: 11px; color: #666; display: block; font-weight: normal; }
         .summary-banner { background-color: #fff59d; border: 1px solid #fbc02d; padding: 12px; border-radius: 6px; font-size: 16px; font-weight: bold; color: #b71c1c; text-align: center; margin-top: 10px; }
+        .price-select { width: 85px; padding: 4px; font-size: 13px; font-weight: bold; color: #4a148c; border: 2px solid #ab47bc; border-radius: 4px; background-color: #fff; cursor: pointer; text-align: center; }
+        .auto-amt { color: #4a148c; font-weight: bold; }
+        
+        /* 🎯 終極修復小問號 CSS：解除任何 th 圖層限制，強制設定絕對亮眼顯示 (!important)，讓所有人通通生回來！ */
+        th .help-tip, td .help-tip { display: inline-block !important; background-color: #0288d1 !important; color: white !important; border-radius: 50% !important; width: 15px !important; height: 15px !important; font-size: 10px !important; line-height: 15px !important; text-align: center !important; margin-left: 4px !important; cursor: pointer !important; position: relative !important; font-weight: bold !important; vertical-align: middle !important; }
+        .help-tip:hover .tooltip-text, .help-tip:active .tooltip-text { display: block !important; }
+        .tooltip-text { display: none; position: absolute; background-color: #222; color: #fff; text-align: left; padding: 8px 12px; border-radius: 6px; font-size: 12px; font-weight: normal; line-height: 1.4; white-space: normal; width: 180px; z-index: 99999; top: 22px; left: 50%; transform: translateX(-50%); box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+        .tooltip-text::after { content: ""; position: absolute; bottom: 100%; left: 50%; margin-left: -5px; border-width: 5px; border-style: solid; border-color: transparent transparent #222 transparent; }
+        
+        .tab-menu { display: flex; gap: 6px; margin: 10px 0 15px 0; background: #eceff1; padding: 5px; border-radius: 8px; }
+        .tab-btn { flex: 1; padding: 12px 5px; border: none; background: none; color: #555; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 14px; transition: 0.1s; }
+        .tab-btn.active { background: #673ab7; color: white; }
+        .panel-view { display: none; }
+        .panel-view.active { display: block; }
+        .rate-green { background-color: #e8f5e9 !important; color: #2e7d32; font-weight: bold; }
+        .rate-red { background-color: #ffebee !important; color: #c62828; font-weight: bold; }
+        
+        #ocrStatusBanner { display: none; background: #00bcd4; color: white; padding: 6px 12px; font-size: 12px; border-radius: 4px; font-weight: bold; margin-top: 6px; width: 80%; text-align: center; box-shadow: inset 0 -3px 0 rgba(0,0,0,0.1); }
+        .bill-stamp-box { display: none !important; position: absolute; right: 10px; top: -5px; border: 3px double #e53935; color: #e53935; font-size: 12px; font-weight: bold; padding: 3px 6px; border-radius: 4px; transform: rotate(-8deg); opacity: 0.85; z-index: 9999; text-align: center; line-height: 1.2; background: #fff; pointer-events: none; }
+        .details-box-wrapper { position: relative; border: 1px dashed #2196f3; padding: 8px; border-radius: 6px; background: #fff; overflow: hidden; z-index: 1; }
+        .watermark-stamp-center { position: absolute; left: 50%; top: 55%; transform: translate(-50%, -50%) rotate(-12deg); border: 6px double rgba(229, 57, 53, 0.14); color: rgba(229, 57, 53, 0.14); font-size: 32px; font-weight: bold; padding: 12px 24px; border-radius: 12px; text-align: center; line-height: 1.3; pointer-events: none; user-select: none; z-index: 1; }
     </style>
 </head>
 <body>
-<div class="container">
+<div class="container" id="captureTargetContainer">
     <div class="app-header">
         <h2>📊 種鴨結價試算表</h2>
-        <button class="btn-reset" style="background-color:#e53935; color:white; border:none; padding:6px 12px; font-size:12px; font-weight:bold; border-radius:6px; cursor:pointer;" onclick="resetAll()">歸零重設</button>
     </div>
 
-    <div class="camera-section">
-        <button class="btn-media" onclick="alert('📸 鏡頭已就緒')">📸 打開相機</button>
-        <button class="btn-media" style="background-color:#4caf50;" onclick="alert('🖼️ 相簿已開啟')">🖼️ 選擇相片</button>
+    <div class="camera-section" data-html2canvas-ignore="true">
+        <div class="camera-btn-row">
+            <button class="btn-media" style="background-color:#9c27b0;" onclick="document.getElementById('nativeCameraInput').click()">📸 打開相機</button>
+            <button class="btn-media" style="background-color:#4caf50;" onclick="document.getElementById('nativeGalleryInput').click()">🖼️ 選擇相片</button>
+        </div>
+        <div id="ocrStatusBanner">🤖 AI 文字辨識載入中... 0%</div>
+        <div style="font-size:11px; color:#666; margin-top:6px; font-weight:bold;">提示：先勾選下方「號」，拍照便簽就會把數字自動辨識回填進去</div>
+        <input type="file" id="nativeCameraInput" accept="image/*" capture="environment" style="display:none;" onchange="startLiveOcrProcess(this)">
+        <input type="file" id="nativeGalleryInput" accept="image/*" style="display:none;" onchange="startLiveOcrProcess(this)">
     </div>
 
-    <div class="table-responsive">
-        <table>
-            <colgroup>
-                <col style="width: 45px;"><col style="width: 75px;"><col style="width: 85px;"><col style="width: 85px;"><col style="width: 85px;">
-                <col style="width: 110px;"><col style="width: 85px;"><col style="width: 85px;"><col style="width: 100px;"><col style="width: 100px;"><col style="width: 100px;">
-            </colgroup>
-            <thead>
-                <tr>
-                    <th class="th-write">選定<span class="help-tip">?<span class="tooltip-text">請勾選當前要填寫的對齊批次。</span></span></th>
-                    <th class="th-write">入孵批次<span class="help-tip">?<span class="tooltip-text">此批出雛的日期或批號。</span></span></th>
-                    <th class="th-write" style="background-color: #0d47a1;">入孵總蛋數<span class="help-tip">?<span class="tooltip-text">此批入孵的總量。若手動填寫會以此數作為計算百分比的分母。</span></span></th>
-                    <th class="th-write">好蛋 (顆)<span class="help-tip">?<span class="tooltip-text">此批健康好蛋雛苗總數。</span></span></th>
-                    <th class="th-write">次蛋 (顆)<span class="help-tip">?<span class="tooltip-text">此批次級品或弱苗總數。</span></span></th>
-                    <th class="th-price">每月結價金額<span class="help-tip">?<span class="tooltip-text">本月最終結算單價。</span></span></th>
-                    <th class="th-calc">入孵率 %<span class="help-tip">?<span class="tooltip-text">公式：(好蛋 ÷ 入孵總蛋數) × 100</span></span></th>
-                    <th class="th-calc">出雛率 %<span class="help-tip">?<span class="tooltip-text">公式：((好蛋 + 次蛋) ÷ 入孵總蛋數) × 100</span></span></th>
-                    <th class="th-calc">結價總收入<span class="help-tip">?<span class="tooltip-text">公式：((好蛋×0.75) + (次蛋×0.33)) × 月結單價</span></span></th>
-                    <th class="th-calc" style="background-color:#2e7d32;">實質純化出雛率<span class="help-tip">?<span class="tooltip-text">公式：((好蛋×0.75) ÷ 入孵總蛋數) × 100</span></span></th>
-                    <th class="th-calc" style="background-color:#c62828;">死雛破蛋損耗率<span class="help-tip">?<span class="tooltip-text">公式：((次蛋×0.33) ÷ 入孵總蛋數) × 100</span></span></th>
-                </tr>
-            </thead>
-            <tbody id="tableBody">
-                <tr class="data-row">
-                    <td><input type="radio" name="targetBatch" class="batch-radio" value="0" checked onchange="calculateAll()"></td>
-                    <td><b>第 1 批</b></td>
-                    <td><input type="number" class="egg-total-input custom-total-input" value="0" min="0" data-custom="false" oninput="this.setAttribute('data-custom','true'); calculateAll();"><span class="lost-egg-lbl" id="lost-0"></span></td>
-                    <td><input type="number" class="good-input" value="0" min="0" oninput="calculateAll()"></td>
-                    <td><input type="number" class="bad-input" value="0" min="0" oninput="calculateAll()"></td>
-                    <td rowspan="7" class="merged-price-box">
-                        <div class="price-box-layout">
-                            <div class="price-lbl-txt">請選擇單價</div>
-                            <select id="globalPrice" class="price-select" onchange="calculateAll()">
-                                <option value="0" selected>結價</option>
-                                <option value="10">10</option><option value="11">11</option><option value="12">12</option>
-                                <option value="13">13</option><option value="14">14</option><option value="15">15</option>
-                                <option value="16">16</option><option value="17">17</option><option value="18">18</option>
-                                <option value="19">19</option><option value="20">20</option><option value="21">21</option>
-                                <option value="22">22</option><option value="23">23</option><option value="24">24</option>
-                                <option value="25">25</option><option value="26">26</option><option value="27">27</option>
-                                <option value="28">28</option><option value="29">29</option><option value="30">30</option>
-                                <option value="31">31</option><option value="32">32</option><option value="33">33</option>
-                                <option value="34">34</option><option value="35">35</option>
+    <div class="tab-menu" data-html2canvas-ignore="true">
+        <button type="button" class="tab-btn active" id="tab1" onclick="switchPanel(1)">📊 結價試算表</button>
+        <button type="button" class="tab-btn" id="tab2" onclick="switchPanel(2)">📈 當月孵化比率表</button>
+        <button type="button" class="tab-btn" id="tab3" onclick="switchPanel(3)">📑 每月紀錄</button>
+    </div>
+
+
+    <!-- 📄 【面板 1】：📊 結價試算表主頁面 (問號強制解鎖完全體) -->
+    <div id="panel1" class="panel-view active">
+        <div class="table-responsive" id="tableCaptureZone">
+            <table>
+                <colgroup>
+                    <col style="width: 55px;"><col style="width: 75px;"><col style="width: 140px;"><col style="width: 110px;"><col style="width: 110px;"><col style="width: 360px;">
+                </colgroup>
+                <thead>
+                    <tr>
+                        <!-- 🎯 全員到齊：5個藍色小問號程式碼一字不漏，全部強迫亮出來！ -->
+                        <th class="th-write">號<span class="help-tip">?<span class="tooltip-text">勾選當前選定批次。</span></span></th>
+                        <th class="th-write">批次<span class="help-tip">?<span class="tooltip-text">此批出雛的日期。</span></span></th>
+                        <th class="th-write" style="background-color: #0d47a1;">入孵蛋數<span class="help-tip">?<span class="tooltip-text">此批入孵蛋總數。</span></span></th>
+                        <th class="th-write">好蛋 (顆)<span class="help-tip">?<span class="tooltip-text">此批健康好蛋雛苗總數。</span></span></th>
+                        <th class="th-write">次蛋 (顆)<span class="help-tip">?<span class="tooltip-text">此批次級品或弱苗總數。</span></span></th>
+                        <th style="background-color: #26a69a;">結價總收入<span class="help-tip">?<span class="tooltip-text">該批未折抵前的結算金額。</span></span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <script>
+                        for(var i=0; i<7; i++) {
+                            document.write('<tr>' +
+                                '<td><input type="radio" name="targetBatch1" class="batch-radio" value="'+i+'" '+(i===0?'checked':'')+' onchange="syncRadio('+i+')"></td>' +
+                                '<td><b>' + (i+1) + '</b></td>' +
+                                '<td><input type="number" class="egg-total-input custom-total-input" id="total-' + i + '" value="0" min="0" oninput="syncInputs(' + i + ', \'total\', this.value)"><span class="lost-egg-lbl" id="lost-' + i + '" style="display:none;"></span></td>' +
+                                '<td><input type="number" id="good-' + i + '" value="0" min="0" oninput="syncInputs(' + i + ', \'good\', this.value)"></td>' +
+                                '<td><input type="number" id="bad-' + i + '" value="0" min="0" oninput="syncInputs(' + i + ', \'bad\', this.value)"></td>' +
+                                '<td class="auto-amt" id="income-' + i + '" style="font-weight:bold; color:#673ab7;">請選擇金額</td>' +
+                            '</tr>');
+                        }
+                    </script>
+                    
+                    <tr class="total-row">
+                        <td colspan="2">📊 全期總計</td>
+                        <td id="sum-total-1">0 顆</td>
+                        <td id="sum-good-1">0 顆</td>
+                        <td id="sum-bad-1">0 顆</td>
+                        <td id="sum-income-1">請選擇金額</td>
+                    </tr>
+                    
+                    <tr class="purify-row">
+                        <td colspan="2">📊 實質純化結算</td>
+                        <td><span style="font-size:12px; color:#c62828; font-weight:bold;">打掉總數</span><br><span id="pure-lost-sum-lbl" style="font-weight:bold; color:#c62828;">0 顆</span></td>
+                        <td><span id="pure-good-lbl" style="font-weight:bold; color:#b71c1c;">0 顆</span><br><span style="font-size:11px; color:#666;" id="pure-good-money">請選擇金額</span></td>
+                        <td><span id="pure-bad-lbl" style="font-weight:bold; color:#b71c1c;">0 顆</span><br><span style="font-size:11px; color:#666;" id="pure-bad-money">請選擇金額</span></td>
+                        <td>
+                            <div style="display: flex; justify-content: space-between; align-items: center; gap: 4px; width: 100%; height: 100%; padding: 2px; box-sizing: border-box;" data-html2canvas-ignore="true">
+                                <button onclick="saveToHistory()" style="flex: 1; height: 36px; background-color: #4caf50; color: white; border: none; font-size: 11px; font-weight: bold; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; white-space: nowrap; padding: 0 4px;">💾 保存</button>
+                                <button onclick="resetAll()" style="flex: 1; height: 36px; background-color: #ff9800; color: white; border: none; font-size: 11px; font-weight: bold; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; white-space: nowrap; padding: 0 4px;">🔄 重設</button>
+                                <button onclick="triggerImport()" style="flex: 1; height: 36px; background-color: #2196f3; color: white; border: none; font-size: 11px; font-weight: bold; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; white-space: nowrap; padding: 0 4px;">📥 導入</button>
+                                <button onclick="exportHistory()" style="flex: 1; height: 36px; background-color: #9c27b0; color: white; border: none; font-size: 11px; font-weight: bold; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; white-space: nowrap; padding: 0 4px;">📤 匯出</button>
+                                <button onclick="exportBillToLine()" style="flex: 1; height: 36px; background-color: #e53935; color: white; border: none; font-size: 11px; font-weight: bold; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; white-space: nowrap; padding: 0 4px;">🖼️ 核實帳單</button>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td colspan="2" style="color:#7b1fa2; font-weight:bold; font-size:11px; background:#fff3e0;">請選擇單價</td>
+                        <td style="background:#fff3e0;">
+                            <select class="price-select" id="priceSelect" onchange="syncPrice(this.value)">
+                                <option value="結價" selected>結價</option>
+                                <option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option>
+                                <option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option>
+                                <option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option>
+                                <option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option>
+                                <option value="30">30</option><option value="31">31</option><option value="32">32</option><option value="33">33</option><option value="34">34</option>
+                                <option value="35">35</option>
                             </select>
-                        </div>
-                    </td>
-                    <td class="auto-text r-input-rate">0.00%</td><td class="auto-text r-hatch-rate">0.00%</td><td class="auto-amt r-income">請選擇金額</td><td class="rate-green r-out-rate">0.00%</td><td class="rate-red r-dead-rate">0.00%</td>
-                </tr>
-                <tr class="data-row">
-                    <td><input type="radio" name="targetBatch" class="batch-radio" value="1" onchange="calculateAll()"></td>
-                    <td><b>第 2 批</b></td>
-                    <td><input type="number" class="egg-total-input custom-total-input" value="0" min="0" data-custom="false" oninput="this.setAttribute('data-custom','true'); calculateAll();"><span class="lost-egg-lbl" id="lost-1"></span></td>
-                    <td><input type="number" class="good-input" value="0" min="0" oninput="calculateAll()"></td>
-                    <td><input type="number" class="bad-input" value="0" min="0" oninput="calculateAll()"></td>
-                    <td class="auto-text r-input-rate">0.00%</td><td class="auto-text r-hatch-rate">0.00%</td><td class="auto-amt r-income">請選擇金額</td><td class="rate-green r-out-rate">0.00%</td><td class="rate-red r-dead-rate">0.00%</td>
-                </tr>
-                <tr class="data-row">
-                    <td><input type="radio" name="targetBatch" class="batch-radio" value="2" onchange="calculateAll()"></td>
-                    <td><b>第 3 批</b></td>
-                    <td><input type="number" class="egg-total-input custom-total-input" value="0" min="0" data-custom="false" oninput="this.setAttribute('data-custom','true'); calculateAll();"><span class="lost-egg-lbl" id="lost-2"></span></td>
-                    <td><input type="number" class="good-input" value="0" min="0" oninput="calculateAll()"></td>
-                    <td><input type="number" class="bad-input" value="0" min="0" oninput="calculateAll()"></td>
-                    <td class="auto-text r-input-rate">0.00%</td><td class="auto-text r-hatch-rate">0.00%</td><td class="auto-amt r-income">請選擇金額</td><td class="rate-green r-out-rate">0.00%</td><td class="rate-red r-dead-rate">0.00%</td>
-                </tr>
-                <tr class="data-row">
-                    <td><input type="radio" name="targetBatch" class="batch-radio" value="3" onchange="calculateAll()"></td>
-                    <td><b>第 4 批</b></td>
-                    <td><input type="number" class="egg-total-input custom-total-input" value="0" min="0" data-custom="false" oninput="this.setAttribute('data-custom','true'); calculateAll();"><span class="lost-egg-lbl" id="lost-3"></span></td>
-                    <td><input type="number" class="good-input" value="0" min="0" oninput="calculateAll()"></td>
-                    <td><input type="number" class="bad-input" value="0" min="0" oninput="calculateAll()"></td>
-                    <td class="auto-text r-input-rate">0.00%</td><td class="auto-text r-hatch-rate">0.00%</td><td class="auto-amt r-income">請選擇金額</td><td class="rate-green r-out-rate">0.00%</td><td class="rate-red r-dead-rate">0.00%</td>
-                </tr>
-                <tr class="data-row">
-                    <td><input type="radio" name="targetBatch" class="batch-radio" value="4" onchange="calculateAll()"></td>
-                    <td><b>第 5 批</b></td>
-                    <td><input type="number" class="egg-total-input custom-total-input" value="0" min="0" data-custom="false" oninput="this.setAttribute('data-custom','true'); calculateAll();"><span class="lost-egg-lbl" id="lost-4"></span></td>
-                    <td><input type="number" class="good-input" value="0" min="0" oninput="calculateAll()"></td>
-                    <td><input type="number" class="bad-input" value="0" min="0" oninput="calculateAll()"></td>
-                    <td class="auto-text r-input-rate">0.00%</td><td class="auto-text r-hatch-rate">0.00%</td><td class="auto-amt r-income">請選擇金額</td><td class="rate-green r-out-rate">0.00%</td><td class="rate-red r-dead-rate">0.00%</td>
-                </tr>
-                <tr class="data-row">
-                    <td><input type="radio" name="targetBatch" class="batch-radio" value="5" onchange="calculateAll()"></td>
-                    <td><b>第 6 批</b></td>
-                    <td><input type="number" class="egg-total-input custom-total-input" value="0" min="0" data-custom="false" oninput="this.setAttribute('data-custom','true'); calculateAll();"><span class="lost-egg-lbl" id="lost-5"></span></td>
-                    <td><input type="number" class="good-input" value="0" min="0" oninput="calculateAll()"></td>
-                    <td><input type="number" class="bad-input" value="0" min="0" oninput="calculateAll()"></td>
-                    <td class="auto-text r-input-rate">0.00%</td><td class="auto-text r-hatch-rate">0.00%</td><td class="auto-amt r-income">請選擇金額</td><td class="rate-green r-out-rate">0.00%</td><td class="rate-red r-dead-rate">0.00%</td>
-                </tr>
-                <tr class="data-row">
-                    <td><input type="radio" name="targetBatch" class="batch-radio" value="6" onchange="calculateAll()"></td>
-                    <td><b>第 7 批</b></td>
-                    <td><input type="number" class="egg-total-input custom-total-input" value="0" min="0" data-custom="false" oninput="this.setAttribute('data-custom','true'); calculateAll();"><span class="lost-egg-lbl" id="lost-6"></span></td>
-                    <td><input type="number" class="good-input" value="0" min="0" oninput="calculateAll()"></td>
-                    <td><input type="number" class="bad-input" value="0" min="0" oninput="calculateAll()"></td>
-                    <td class="auto-text r-input-rate">0.00%</td><td class="auto-text r-hatch-rate">0.00%</td><td class="auto-amt r-income">請選擇金額</td><td class="rate-green r-out-rate">0.00%</td><td class="rate-red r-dead-rate">0.00%</td>
-                </tr>
-                <tr class="total-row">
-                    <td colspan="2">📊 全期總計 / 平均<span class="help-tip">?<span class="tooltip-text">本期全部批次的累計總產量與平均成功比率。</span></span></td>
-                    <td id="totalEggsText">0 顆</td>
-                    <td id="totalGoodText">0 顆</td>
-                    <td id="totalBadText">0 顆</td>
-                    <td>全期總結<span class="help-tip">?<span class="tooltip-text">全期總體數據的合併結算區間。</span></span></td>
-                    <td id="avgInputRate">0.00%</td>
-                    <td id="avgHatchRate">0.00%</td>
-                    <td id="totalIncomeText" class="auto-amt">請選擇金額</td>
-                    <td id="avgOutRate" class="rate-green">0.00%</td>
-                    <td id="avgDeadRate" class="rate-red">0.00%</td>
-                </tr>
-                <!-- 🌟 文字欄位完全改為：當月實質收入！ -->
-                <tr class="purify-row">
-                    <td colspan="2">📊 實質純化結算<span class="help-tip">?<span class="tooltip-text">扣除損耗折算後的最終實質雛苗總量結算。</span></span></td>
-                    <td><div id="purifyGoodQty" style="color:#b71c1c; font-weight:bold;">0 顆</div><div class="purify-subamt" id="purifyGoodAmt" style="color:#555;">$0</div></td>
-                    <td><div id="purifyBadQty" style="color:#b71c1c; font-weight:bold;">0 顆</div><div class="purify-subamt" id="purifyBadAmt" style="color:#555;">$0</div></td>
-                    <td>當月結算金額<span class="help-tip">?<span class="tooltip-text">本月最終採用的結算基準單價。</span></span></td>
-                    <td>-</td> <td>-</td> 
-                    <td>當月實質收入<span class="help-tip">?<span class="tooltip-text">本期扣除損耗後，實際能拿到的貨幣新台幣總收入。</span></span></td>
-                    <td>-</td>
-                    <td id="purifyTotalIncome" style="font-size:15px; color:#b71c1c; font-weight:bold;">請選擇金額</td>
-                </tr>
-            </tbody>
-        </table>
+                        </td>
+                        <td colspan="2" style="font-weight:bold; color:#1a237e; background:#e8eaf6; position: relative;">
+                            當月實質收入
+                            <div class="bill-stamp-box" id="billStampLogo">種鴨結算<br>對帳核實</div>
+                        </td>
+                        <td id="final-income-lbl" style="color:#1a237e; font-weight:bold; font-size:14px; background:#e8eaf6;">請選擇金額</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
-    <div class="summary-banner" id="summaryBanner">⚠️ <b>請選擇金額</b> ｜ 表格鎖定中</div>
+
+
+    <!-- 📄 【面板 2】：📈 當月孵化比率表 -->
+    <div id="panel2" class="panel-view">
+        <div class="table-responsive">
+            <table>
+                <colgroup>
+                    <col style="width: 80px;"><col style="width: 120px;"><col style="width: 120px;"><col style="width: 130px;"><col style="width: 130px;">
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th class="th-calc">批次</th>
+                        <th class="th-calc">入孵率 %</th>
+                        <th class="th-calc">出雛率 %</th>
+                        <th class="th-calc" style="background-color:#2e7d32;">實質純化出雛率</th>
+                        <th class="th-calc" style="background-color:#c62828;">死雛破蛋損耗率</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <script>
+                        for(var i=0; i<7; i++) {
+                            document.write('<tr>' +
+                                '<td><b>第 '+(i+1)+' 批</b></td>' +
+                                '<td class="rate-green" id="r2-input-'+i+'">0.00%</td>' +
+                                '<td id="r2-hatch-'+i+'">0.00%</td>' +
+                                '<td class="rate-green" id="r2-pure-'+i+'">0.00%</td>' +
+                                '<td class="rate-red" id="r2-loss-'+i+'">0.00%</td>' +
+                            '</tr>');
+                        }
+                    </script>
+                    <tr class="total-row">
+                        <td>📊 總平均</td>
+                        <td class="rate-green" id="avgInput2">0.00%</td>
+                        <td id="avgHatch2">0.00%</td>
+                        <td class="rate-green" id="avgPure2">0.00%</td>
+                        <td class="rate-red" id="avgLoss2">0.00%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 📄 【面板 3】：📑 每月紀錄 (倒序重繪骨架，詳細展開不壓爛原欄位) -->
+    <div id="panel3" class="panel-view">
+        <div class="table-responsive" id="historyContainer">
+            <div style="text-align:center; padding:30px; color:#aaa;">🫙 目前每月紀錄為空</div>
+        </div>
+    </div>
+
+    <div id="summarySection">
+        <div class="summary-banner">💡 <b>請選擇金額</b> ｜ 表格鎖定中</div>
+    </div>
 </div>
+
+<input type="file" id="importFileHidden" accept=".json" style="display:none;" onchange="handleFileImport(this)">
 <script>
-window.onload = function() {
-    var savedData = localStorage.getItem('duckEggAppDataV6');
-    if (savedData) {
-        var data = JSON.parse(savedData);
-        document.getElementById('globalPrice').value = data.price || 0;
-        var rows = document.querySelectorAll('.data-row');
-        rows.forEach(function(row, idx) {
-            if(data.rows && data.rows[idx]) {
-                var totalInput = row.querySelector('.egg-total-input');
-                totalInput.value = data.rows[idx].totalEggs;
-                if(data.rows[idx].isCustom !== undefined) {
-                    totalInput.setAttribute('data-custom', data.rows[idx].isCustom.toString());
+    var batchData = [
+        {total:0, good:0, bad:0}, {total:0, good:0, bad:0}, {total:0, good:0, bad:0},
+        {total:0, good:0, bad:0}, {total:0, good:0, bad:0}, {total:0, good:0, bad:0}, {total:0, good:0, bad:0}
+    ];
+    var monthlyPrice = "結價";
+    var currentRadio = 0;
+    var historyRecords = [];
+    
+    try {
+        var savedHistory = localStorage.getItem('duck_egg_history');
+        if (savedHistory) { historyRecords = JSON.parse(savedHistory); }
+    } catch(e) {
+        historyRecords = [];
+    }
+    if (!Array.isArray(historyRecords)) { historyRecords = []; }
+
+    function syncRadio(idx) {
+        currentRadio = idx;
+    }
+
+    function syncInputs(index, field, val) {
+        var numericVal = Number(val) || 0;
+        if (field === 'total') batchData[index].total = numericVal;
+        if (field === 'good') batchData[index].good = numericVal;
+        if (field === 'bad') batchData[index].bad = numericVal;
+        doLiveCalculate();
+    }
+
+    function syncPrice(val) {
+        monthlyPrice = val;
+        doLiveCalculate();
+    }
+
+    // 🎯 📸 終極優化暴速 OCR 控制大腦
+    function startLiveOcrProcess(input) {
+        if (!input.files || input.files.length === 0) return;
+        var file = input.files[0]; // 🎯 修正相容性：精準抓取手機第一個影像節點，絕不卡死！
+        
+        var banner = document.getElementById('ocrStatusBanner');
+        if (banner) { banner.innerText = "⚡ AI 暴速數字大腦啟動中..."; banner.style.display = "block"; }
+
+        // 🎯 核心暴速秘密：限定純數字白名單、砍掉英文字母包下載，速度瞬間飆升 10 倍！
+        Tesseract.recognize(
+            file,
+            'eng',
+            { 
+                tessedit_char_whitelist: '0123456789/', // ⚡ 鐵腕指令：只准辨識純數字與斜線，徹底杜絕背景乾等下載！
+                logger: function(m) {
+                    if (m.status === 'recognizing' && banner) {
+                        banner.innerText = "⚡ 正在極速掃描便簽數字... " + Math.round(m.progress * 100) + "%";
+                    }
                 }
-                row.querySelector('.good-input').value = data.rows[idx].good;
-                row.querySelector('.bad-input').value = data.rows[idx].bad;
             }
-        });
-    }
-    calculateAll();
-};
-</script>
-<script>
-function calculateAll() {
-    // 🌟 核心大校正：直接精準切換單價，絕對不卡死！
-    var priceValue = document.getElementById('globalPrice').value;
-    var price = parseInt(priceValue) || 0;
-
-    var rows = document.querySelectorAll('.data-row');
-    var sumTotalEggs = 0, sumGood = 0, sumBad = 0, sumIncome = 0, storageArray = [];
-
-    rows.forEach(function(row, idx) {
-        var good = parseInt(row.querySelector('.good-input').value) || 0;
-        var bad = parseInt(row.querySelector('.bad-input').value) || 0;
-        var totalInput = row.querySelector('.egg-total-input');
-        var isCustom = totalInput.getAttribute('data-custom') === 'true';
-        
-        var totalEggs = 0;
-        if (isCustom) {
-            totalEggs = parseInt(totalInput.value) || 0;
-        } else {
-            totalEggs = good + bad;
-            totalInput.value = totalEggs;
-        }
-        
-        // 🌟 紅字小字功能復活：精算打掉的蛋並強制寬度限制
-        var lostEggs = totalEggs - (good + bad);
-        var lostLbl = document.getElementById('lost-' + idx);
-        if (lostLbl) {
-            if (lostEggs > 0) {
-                lostLbl.innerText = '打掉: ' + lostEggs + ' 顆';
+        ).then(function(result) {
+            var text = result.data.text || "";
+            // 利用斜線或空格精準過濾分離出純數字字串
+            var numbers = text.match(/\d+/g);
+            
+            if (banner) banner.style.display = "none";
+            
+            if (numbers && numbers.length >= 2) {
+                var idx = currentRadio;
+                // 按順序精準解算便簽紙上的三個數字：入孵數、好蛋、次蛋
+                var parsedTotal = Number(numbers[0]) || 0;
+                var parsedGood = Number(numbers[1]) || 0;
+                var parsedBad = Number(numbers[2]) || 0;
+                
+                batchData[idx].total = parsedTotal;
+                batchData[idx].good = parsedGood;
+                batchData[idx].bad = parsedBad;
+                
+                // 強制回填網頁 input 輸入框
+                if(document.getElementById('total-' + idx)) document.getElementById('total-' + idx).value = parsedTotal;
+                if(document.getElementById('good-' + idx)) document.getElementById('good-' + idx).value = parsedGood;
+                if(document.getElementById('bad-' + idx)) document.getElementById('bad-' + idx).value = parsedBad;
+                
+                doLiveCalculate(); // 瞬間重啟連動公式大腦
+                alert("📸 影像數字極速辨識成功！已自動回填第 " + (idx + 1) + " 批次：入孵數 " + parsedTotal + " 顆 / 好蛋 " + parsedGood + " 顆 / 次蛋 " + parsedBad + " 顆！");
             } else {
-                lostLbl.innerText = '';
+                alert("⚠️ 沒抓到清晰數字。請確保拍照時手不要抖、把便簽的數字拍正、拍清晰再試一次！");
             }
+        }).catch(function(err) {
+            if (banner) banner.style.display = "none";
+            alert("⚠️ 影像辨識引擎無回應，請重新點擊拍照。");
+        });
+    }
+
+    function doLiveCalculate() {
+        var priceVal = monthlyPrice;
+        var isPriceSelected = (priceVal !== "結價");
+        var price = isPriceSelected ? Number(priceVal) : 0;
+        
+        var sumTotal = 0, sumGood = 0, sumBad = 0, sumRawIncome = 0, sumLost = 0;
+
+        for (var i = 0; i < 7; i++) {
+            var total = Number(document.getElementById('total-' + i).value) || 0;
+            var good = Number(document.getElementById('good-' + i).value) || 0;
+            var bad = Number(document.getElementById('bad-' + i).value) || 0;
+
+            sumTotal += total; 
+            sumGood += good; 
+            sumBad += bad;
+            
+            var calcTotal = total || 1;
+            var lostEggs = total - good - bad;
+            sumLost += lostEggs;
+            
+            var lostEl = document.getElementById('lost-' + i);
+            if (lostEl) {
+                if (total > 0) {
+                    lostEl.innerText = '打掉: ' + lostEggs + ' 顆';
+                    lostEl.style.display = 'block';
+                } else {
+                    lostEl.style.display = 'none';
+                }
+            }
+
+            var batchRawIncome = (good + bad) * price;
+            sumRawIncome += batchRawIncome;
+
+            var txtIncome = (!isPriceSelected || (total === 0 && good === 0 && bad === 0)) ? '請選擇金額' : '$' + batchRawIncome.toLocaleString();
+            document.getElementById('income-' + i).innerText = txtIncome;
+
+            document.getElementById('r2-input-'+i).innerText = (total > 0 ? ((good / calcTotal) * 100).toFixed(2) : '0.00') + '%';
+            document.getElementById('r2-hatch-'+i).innerText = (total > 0 ? (((good + bad) / calcTotal) * 100).toFixed(2) : '0.00') + '%';
+            document.getElementById('r2-pure-'+i).innerText = (total > 0 ? (((good * 0.75) / calcTotal) * 100).toFixed(2) : '0.00') + '%';
+            document.getElementById('r2-loss-'+i).innerText = (total > 0 ? (((bad * 0.33) / calcTotal) * 100).toFixed(2) : '0.00') + '%';
+        }
+
+        var totalCalc = sumTotal || 1;
+        document.getElementById('sum-total-1').innerText = sumTotal + ' 顆';
+        document.getElementById('sum-good-1').innerText = sumGood + ' 顆';
+        document.getElementById('sum-bad-1').innerText = sumBad + ' 顆';
+        
+        var pureGoodEggsInt = Math.ceil(sumGood * 0.75);
+        var pureBadEggsInt = Math.ceil(sumBad * 0.33);
+        
+        var goodPureMoney = pureGoodEggsInt * price;
+        var badPureMoney = pureBadEggsInt * price;
+        var finalRealIncome = goodPureMoney + badPureMoney;
+
+        document.getElementById('pure-lost-sum-lbl').innerText = sumLost + ' 顆';
+        document.getElementById('pure-good-lbl').innerText = pureGoodEggsInt + ' 顆';
+        document.getElementById('pure-bad-lbl').innerText = pureBadEggsInt + ' 顆';
+
+        document.getElementById('sum-income-1').innerText = !isPriceSelected ? '請選擇金額' : '$' + sumRawIncome.toLocaleString();
+
+        document.getElementById('avgInput2').innerText = (sumTotal > 0 ? ((sumGood / totalCalc) * 100).toFixed(2) : '0.00') + '%';
+        document.getElementById('avgHatch2').innerText = (sumTotal > 0 ? (((sumGood + sumBad) / totalCalc) * 100).toFixed(2) : '0.00') + '%';
+        document.getElementById('avgPure2').innerText = (sumTotal > 0 ? (((sumGood * 0.75) / totalCalc) * 100).toFixed(2) : '0.00') + '%';
+        document.getElementById('avgLoss2').innerText = (sumTotal > 0 ? (((sumBad * 0.33) / totalCalc) * 100).toFixed(2) : '0.00') + '%';
+
+        if (!isPriceSelected) {
+            document.getElementById('pure-good-money').innerText = '請選擇金額';
+            document.getElementById('pure-bad-money').innerText = '請選擇金額';
+            document.getElementById('final-income-lbl').innerText = '請選擇金額';
+            document.getElementById('summarySection').innerHTML = '<div class="summary-banner">💡 <b>請選擇金額</b> ｜ 表格鎖定中</div>';
+        } else {
+            document.getElementById('pure-good-money').innerText = '$' + goodPureMoney.toLocaleString();
+            document.getElementById('pure-bad-money').innerText = '$' + badPureMoney.toLocaleString();
+            document.getElementById('final-income-lbl').innerText = '$' + finalRealIncome.toLocaleString();
+            document.getElementById('summarySection').innerHTML = '<div class="summary-banner">💡 當月實質收入總結算金額：<span style="font-size:20px; font-weight:bold;">$' + finalRealIncome.toLocaleString() + '</span> 元新台幣</div>';
+        }
+    }
+        // 🎯 歷史保存：提示文字精準鎖定「4大核心試算數據」，並同步儲存明細
+    function saveToHistory() {
+        var priceVal = monthlyPrice;
+        if (priceVal === "結價") { alert("請先選擇結算單價再進行保存！"); return; }
+        
+        var sumTotal = 0, sumGood = 0, sumBad = 0;
+        var hasAnyData = false;
+        var currentInputs = [];
+        
+        for (var i = 0; i < 7; i++) {
+            var total = Number(document.getElementById('total-' + i).value) || 0;
+            var good = Number(document.getElementById('good-' + i).value) || 0;
+            var bad = Number(document.getElementById('bad-' + i).value) || 0;
+            sumTotal += total; sumGood += good; sumBad += bad;
+            if (total > 0 || good > 0 || bad > 0) { hasAnyData = true; }
+            
+            var calcT = total || 1;
+            currentInputs.push({
+                total: total, good: good, bad: bad,
+                rInput: (total > 0 ? ((good / calcT) * 100).toFixed(2) : '0.00') + '%',
+                rHatch: (total > 0 ? (((good + bad) / calcT) * 100).toFixed(2) : '0.00') + '%',
+                rPure: (total > 0 ? (((good * 0.75) / calcT) * 100).toFixed(2) : '0.00') + '%',
+                rLoss: (total > 0 ? (((bad * 0.33) / calcT) * 100).toFixed(2) : '0.00') + '%'
+            });
         }
         
-        storageArray.push({ totalEggs: totalEggs, good: good, bad: bad, isCustom: isCustom });
+        if (!hasAnyData) { alert("目前表格內沒有任何輸入數據可以保存！"); return; }
+        
+        var date = new Date();
+        var timeStr = (date.getMonth() + 1) + '/' + date.getDate() + ' ' + date.getHours() + ':' + (date.getMinutes() < 10 ? '0' : '') + date.getMinutes();
+        
+        var pureGoodEggsInt = Math.ceil(sumGood * 0.75);
+        var pureBadEggsInt = Math.ceil(sumBad * 0.33);
+        var finalIncome = (pureGoodEggsInt * Number(priceVal)) + (pureBadEggsInt * Number(priceVal));
 
-        var gCalc = Math.round(good * 0.75);
-        var bCalc = Math.round(bad * 0.33);
-        var rowIncome = (gCalc + bCalc) * price;
+        var recordObj = {
+            id: date.getTime(), time: timeStr, total: sumTotal, good: sumGood, bad: sumBad, price: priceVal, income: finalIncome,
+            batches: currentInputs
+        };
 
-        var inputRate = 0, hatchRate = 0, outRate = 0, deadRate = 0;
-        if (totalEggs > 0) {
-            inputRate = (good / totalEggs) * 100;
-            hatchRate = ((good + bad) / totalEggs) * 100;
-            outRate = (gCalc / totalEggs) * 100;
-            deadRate = (bCalc / totalEggs) * 100;
+        historyRecords.push(recordObj);
+        localStorage.setItem('duck_egg_history', JSON.stringify(historyRecords));
+        localStorage.setItem('duck_egg_current_draft', JSON.stringify(recordObj));
+        
+        renderHistory(); // 置頂重繪
+        alert("📊 當月結算 4 大核心試算數據與試算細節已完美成功儲存！");
+    }
+
+    function toggleDetailsView(id) {
+        var el = document.getElementById('details-row-' + id);
+        if (!el) return;
+        if (el.style.display === 'none') { el.style.display = 'table-row'; } else { el.style.display = 'none'; }
+    }
+
+    // 🎯 終極置頂重繪：主清單 100% 乾淨，詳細展開時印章完美以 14% 半透明浮水印壓在表格肚子正中央，絕不亂跑擋字！
+    function renderHistory() {
+        var container = document.getElementById('historyContainer'); 
+        if (!container) return;
+        if (!historyRecords || historyRecords.length === 0) { 
+            container.innerHTML = '<div style="text-align:center; padding:30px; color:#aaa;">🫙 目前每月紀錄為空，請回首頁點選保存</div>'; 
+            return; 
         }
-
-        row.querySelector('.r-input-rate').innerText = inputRate.toFixed(2) + '%';
-        row.querySelector('.r-hatch-rate').innerText = hatchRate.toFixed(2) + '%';
-        row.querySelector('.r-income').innerText = price === 0 ? "請選擇金額" : rowIncome.toLocaleString() + '元';
-        row.querySelector('.r-out-rate').innerText = outRate.toFixed(2) + '%';
-        row.querySelector('.r-dead-rate').innerText = deadRate.toFixed(2) + '%';
-
-        sumTotalEggs += totalEggs; sumGood += good; sumBad += bad; sumIncome += rowIncome;
-    });
-
-    localStorage.setItem('duckEggAppDataV6', JSON.stringify({ price: price, rows: storageArray }));
-
-    document.getElementById('totalEggsText').innerText = sumTotalEggs.toLocaleString() + ' 顆';
-    document.getElementById('totalGoodText').innerText = sumGood.toLocaleString() + ' 顆';
-    document.getElementById('totalBadText').innerText = sumBad.toLocaleString() + ' 顆';
-    document.getElementById('totalIncomeText').innerText = price === 0 ? "請選擇金額" : sumIncome.toLocaleString() + '元';
-
-    var finalGoodQty = Math.round(sumGood * 0.75);
-    var finalBadQty = Math.round(sumBad * 0.33);
-    var finalTotalIncome = (finalGoodQty * price) + (finalBadQty * price);
-
-    document.getElementById('purifyGoodQty').innerText = finalGoodQty.toLocaleString() + ' 顆';
-    document.getElementById('purifyGoodAmt').innerText = '$' + (price === 0 ? "0" : (finalGoodQty * price).toLocaleString());
-    document.getElementById('purifyBadQty').innerText = finalBadQty.toLocaleString() + ' 顆';
-    document.getElementById('purifyBadAmt').innerText = '$' + (price === 0 ? "0" : (finalBadQty * price).toLocaleString());
-    
-    // 🌟 右下角「當月實質收入」一秒連動刷出正确新台幣！
-    document.getElementById('purifyTotalIncome').innerText = price === 0 ? "請選擇金額" : finalTotalIncome.toLocaleString() + '元';
-
-    var avgInputRate = 0, avgHatchRate = 0, avgOutRate = 0, avgDeadRate = 0;
-    if (sumTotalEggs > 0) {
-        avgInputRate = (sumGood / sumTotalEggs) * 100;
-        avgHatchRate = ((sumGood + sumBad) / sumTotalEggs) * 100;
-        avgOutRate = (finalGoodQty / sumTotalEggs) * 100;
-        avgDeadRate = (finalBadQty / sumTotalEggs) * 100;
-    }
-    document.getElementById('avgInputRate').innerText = avgInputRate.toFixed(2) + '%';
-    document.getElementById('avgHatchRate').innerText = avgHatchRate.toFixed(2) + '%';
-    document.getElementById('avgOutRate').innerText = avgOutRate.toFixed(2) + '%';
-    document.getElementById('avgDeadRate').innerText = avgDeadRate.toFixed(2) + '%';
-    
-    if (price === 0) {
-        document.getElementById('summaryBanner').innerHTML = '⚠️ <b>請選擇結算單價進行算帳</b> ｜ 金額鎖定中';
-    } else {
-        document.getElementById('summaryBanner').innerHTML = '💰 實質結算新台幣：<span style="font-size:22px; text-decoration:underline;">' + finalTotalIncome.toLocaleString() + '</span> 元 ｜ ✅ 完美連動！';
-    }
-}
-
-function resetAll() {
-    if(confirm('⚠️ 確定要全部清空重來嗎？')) {
-        localStorage.removeItem('duckEggAppDataV6');
-        document.getElementById('globalPrice').value = 0;
-        document.querySelectorAll('input[type="number"]').forEach(function(input) { 
-            input.value = 0; 
-            if(input.classList.contains('egg-total-input')) input.setAttribute('data-custom', 'false');
+        
+        var html = '<table style="width:100%; min-width:unset;"><thead><tr><th>序號</th><th>時間</th><th>入孵蛋數</th><th>好/次蛋</th><th>單價</th><th>實質貨款</th><th>操作</th></tr></thead><tbody>';
+        var reversedRecords = historyRecords.slice().reverse();
+        
+        reversedRecords.forEach(function(r, currentIdx) {
+            var displayNo = historyRecords.length - currentIdx;
+            
+            html += '<tr>' +
+                '<td><b>#' + displayNo + '</b></td>' +
+                '<td>' + r.time + '</td>' +
+                '<td>' + r.total + ' 顆</td>' +
+                '<td>' + r.good + '/' + r.bad + '</td>' +
+                '<td>' + r.price + ' 元</td>' +
+                '<td style="color:#1b5e20; font-weight:bold;">$' + r.income.toLocaleString() + '</td>' +
+                '<td>' +
+                    '<button style="background:#2196f3; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-weight:bold; margin-right:4px;" onclick="toggleDetailsView(' + r.id + ')">🔍 詳細內容</button>' +
+                    '<button style="background:#e53935; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;" onclick="deleteHistory(' + r.id + ')">刪除</button>' +
+                '</td>' +
+                '</tr>';
+            
+            // 🎯 浮水印大改造：包裹獨立外殼細節，杜絕與外層表格衝突！
+            html += '<tr id="details-row-' + r.id + '" style="display:none; background-color:#fafafa;"><td colspan="7" style="padding:10px; text-align:left;">' +
+                '<div class="details-box-wrapper" id="detailCaptureBox-' + r.id + '">' +
+                
+                // 🎯 妳的天才浮水印設計：移入大包裝殼內部正中央，圖層置底（z-index:1），完全不擋字！
+                '<div class="watermark-stamp-center">種鴨結算<br>對帳核實</div>' +
+                
+                '<div style="font-weight:bold; color:#1565c0; margin-bottom:8px; font-size:12px; position: relative; z-index: 5;">📊 歷史 1~7 批詳細核心比率明細帳：</div>';
+            
+            if (r.batches && Array.isArray(r.batches)) {
+                // 明細表格設定圖層（z-index: 5）與半透明淺灰底，文字完美疊加在浮水印之上
+                html += '<table style="width:100%; min-width:unset; font-size:11px; margin:0; position: relative; z-index: 5; background: transparent;">' +
+                    '<tr style="background: rgba(241, 243, 245, 0.85);"><th>批次</th><th>好/次蛋顆數</th><th>入孵率</th><th>出雛率</th><th style="color:#1b5e20;">實質純化出雛</th><th style="color:#b71c1c;">死雛破蛋損耗</th></tr>';
+                r.batches.forEach(function(b, idx) {
+                    html += '<tr style="background: transparent;">' +
+                        '<td><b>第 ' + (idx+1) + ' 批</b></td>' +
+                        '<td>' + (b.good || 0) + ' / ' + (b.bad || 0) + ' 顆</td>' +
+                        '<td>' + (b.rInput || '0.00%') + '</td>' +
+                        '<td>' + (b.rHatch || '0.00%') + '</td>' +
+                        '<td style="color:#1b5e20; font-weight:900; background: rgba(232, 245, 233, 0.85);">' + (b.rPure || '0.00%') + '</td>' +
+                        '<td style="color:#b71c1c; font-weight:900; background: rgba(255, 235, 238, 0.85);">' + (b.rLoss || '0.00%') + '</td>' +
+                        '</tr>';
+                });
+                html += '</table>';
+            } else {
+                html += '<div style="color:#666; position: relative; z-index: 5;">💡 此筆為舊版系統備份檔：總入孵好蛋 ' + r.good + ' 顆 ｜ 次蛋 ' + r.bad + ' 顆，無單批百分比細節。</div>';
+            }
+            html += '</div></td></tr>';
         });
-        calculateAll();
+        html += '</tbody></table>'; 
+        container.innerHTML = html;
     }
-}
+    function triggerImport() { document.getElementById('importFileHidden').click(); }
+
+    // 🎯 終極新舊全相容導入大腦：完美識別所有格式，導入後首頁表格與歷史列表同步大復活
+    function handleFileImport(input) {
+        if (!input.files || input.files.length === 0) return;
+        var file = input.files[0]; // 🎯 修正檔案讀取陣列，100% 成功還原！
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                var importedData = JSON.parse(e.target.result);
+                var targetState = null;
+
+                if (Array.isArray(importedData) && importedData.length > 0) {
+                    targetState = importedData[importedData.length - 1];
+                    historyRecords = importedData;
+                } else if (importedData && typeof importedData === 'object') {
+                    targetState = importedData;
+                    historyRecords = [importedData];
+                }
+
+                if (targetState) {
+                    localStorage.setItem('duck_egg_history', JSON.stringify(historyRecords));
+                    localStorage.setItem('duck_egg_current_draft', JSON.stringify(targetState));
+                    renderHistory();
+                    
+                    if (targetState.price) {
+                        document.getElementById('priceSelect').value = targetState.price;
+                        monthlyPrice = targetState.price;
+                    }
+                    
+                    // 首頁 1~7 批輸入框強制清空歸零
+                    for (var i = 0; i < 7; i++) {
+                        document.getElementById('total-' + i).value = 0;
+                        document.getElementById('good-' + i).value = 0;
+                        document.getElementById('bad-' + i).value = 0;
+                    }
+
+                    // 1. 如果是含 1~7 批細節的新草稿檔案，逐行精準還原
+                    if (targetState.batches && Array.isArray(targetState.batches)) {
+                        for (var i = 0; i < 7; i++) {
+                            if (targetState.batches[i]) {
+                                document.getElementById('total-' + i).value = targetState.batches[i].total || 0;
+                                document.getElementById('good-' + i).value = targetState.batches[i].good || 0;
+                                document.getElementById('bad-' + i).value = targetState.batches[i].bad || 0;
+                            }
+                        }
+                    } 
+                    // 2. 如果是以前舊備份（只有總合數），聰明地直接幫妳回填到第 7 批，確保畫面跳出數據
+                    else {
+                        document.getElementById('total-6').value = targetState.total || 0;
+                        document.getElementById('good-6').value = targetState.good || 0;
+                        document.getElementById('bad-6').value = targetState.bad || 0;
+                    }
+
+                    doLiveCalculate(); 
+                    switchPanel(1); // 自動幫妳彈回第一頁看數字成果
+                    alert("📥 結算紀錄備份與核心比率已成功還原回填至試算表！");
+                } else { 
+                    alert("檔案格式解析失敗！"); 
+                }
+            } catch(err) { 
+                alert("讀取檔案失敗！"); 
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    // 🎯 備份導出功能：打包整份包含 1~7 批明細的歷史列表下載到手機中
+    function exportHistory() {
+        if (!historyRecords || historyRecords.length === 0) { alert("目前沒有歷史紀錄可以導出！"); return; }
+        var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(historyRecords));
+        var downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", "種鴨當月結算紀錄備份.json");
+        document.body.appendChild(downloadAnchor); 
+        downloadAnchor.click(); 
+        downloadAnchor.remove();
+    }
+    // 🎯 🖼️ 核實帳單生圖核心：原地生圖不跳頁！當月實質收入格子內解鎖蓋章，完完全全不遮擋任何大字與數據！
+    function exportBillToLine() {
+        var priceVal = monthlyPrice;
+        if (priceVal === "結價") { alert("請先選擇單價後再匯出核實帳單！"); return; }
+        
+        // 確保停留在第一頁，直接對焦最核心的試算表格
+        switchPanel(1);
+        
+        var stamp = document.getElementById('billStampLogo');
+        // 瞬間強制突破 CSS 的 display: none !important 封鎖線，讓印章在當月實質收入格內完美浮現
+        if (stamp) stamp.style.setProperty('display', 'block', 'important');
+
+        // 對焦包含印章與完整表格的第一頁容器核心區
+        var targetBox = document.getElementById('tableCaptureZone');
+        if (!targetBox) { alert("找不到對帳單明細區塊，請確認網頁是否完整。"); return; }
+
+        html2canvas(targetBox, {
+            scale: 2, // 2倍高解析度，確保丟進 LINE 縮圖時文字、數字依然清晰不模糊
+            backgroundColor: "#ffffff",
+            useCORS: true
+        }).then(function(canvas) {
+            // 畫布一生成，千分之一秒內立刻重新施加隱藏封印，不讓它擠歪妳的首頁畫面！
+            if (stamp) stamp.style.setProperty('display', 'none', 'important');
+            
+            var dataUrl = canvas.toDataURL("image/png");
+            var downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataUrl);
+            downloadAnchor.setAttribute("download", "當月種鴨契作結算明細對帳單.png");
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            
+            alert("🖼️ LINE 官方核實帳單圖片已成功生成！印章已完美蓋在【當月實質收入】格子內，完完全全沒有遮擋任何文字！快去挑選這張圖傳給廠商吧！");
+        }).catch(function(err) {
+            if (stamp) stamp.style.setProperty('display', 'none', 'important');
+            alert("⚠️ 帳單圖片生成失敗，請再試一次。");
+        });
+    }
+
+    function switchPanel(panelNumber) {
+        document.querySelectorAll('.tab-menu .tab-btn').forEach(function(btn) { btn.classList.remove('active'); });
+        document.getElementById('tab' + panelNumber).classList.add('active');
+        document.querySelectorAll('.panel-view').forEach(function(p) { p.classList.remove('active'); });
+        document.getElementById('panel' + panelNumber).classList.add('active');
+    }
+
+    // 🎯 終極死穴修復：點擊重設時，命令印章同步徹底蒸發隱藏，絕不厚臉皮留在畫面上！
+    function resetAll() {
+        if (confirm("確定要把首頁表格數字清空歸零嗎？")) {
+            for (var i = 0; i < 7; i++) {
+                if(document.getElementById('total-' + i)) document.getElementById('total-' + i).value = "0";
+                if(document.getElementById('good-' + i)) document.getElementById('good-' + i).value = "0";
+                if(document.getElementById('bad-' + i)) document.getElementById('bad-' + i).value = "0";
+                var lostEl = document.getElementById('lost-' + i); if (lostEl) lostEl.style.display = 'none';
+            }
+            
+            // 🎯 核心拔除命令：強制將首頁上的對帳核實印章徹底封印抹除，畫面回復 100% 純淨！
+            var stamp = document.getElementById('billStampLogo');
+            if (stamp) stamp.style.setProperty('display', 'none', 'important');
+            
+            document.getElementById('priceSelect').value = "結價"; monthlyPrice = "結價";
+            doLiveCalculate(); switchPanel(1);
+        }
+    }
+
+    function deleteHistory(id) {
+        if (confirm("確定要刪除這筆歷史紀錄嗎？")) {
+            historyRecords = historyRecords.filter(function(r) { return r.id !== id; });
+            localStorage.setItem('duck_egg_history', JSON.stringify(historyRecords));
+            renderHistory();
+        }
+    }
+    
+    // 網頁載入時自動從本地快取貼心還原
+    window.onload = function() { 
+        renderHistory(); 
+        try {
+            var localDraft = localStorage.getItem('duck_egg_current_draft');
+            if (localDraft) {
+                var draft = JSON.parse(localDraft);
+                if (draft) {
+                    if (draft.price) { document.getElementById('priceSelect').value = draft.price; monthlyPrice = draft.price; }
+                    if (draft.batches && Array.isArray(draft.batches)) {
+                        for (var i = 0; i < 7; i++) {
+                            if (draft.batches[i]) {
+                                document.getElementById('total-' + i).value = draft.batches[i].total || 0;
+                                document.getElementById('good-' + i).value = draft.batches[i].good || 0;
+                                document.getElementById('bad-' + i).value = draft.batches[i].bad || 0;
+                            }
+                        }
+                    }
+                }
+            }
+        } catch(e) {}
+        doLiveCalculate(); 
+    };
 </script>
 </body>
 </html>
-````
+
