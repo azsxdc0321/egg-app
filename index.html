@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -6,8 +7,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>種鴨結價試算完全體</title>
     <!-- 🎯 載入兩大雲端核心：Tesseract 負責拍照自動識字，html2canvas 負責一鍵生成核實帳單圖片 -->
-    <script src="https://jsdelivr.net"></script>
-    <script src="https://cloudflare.com"></script>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f1f3f5; margin: 0; padding: 10px; color: #333; }
         .container { max-width: 1450px; margin: 0 auto; background-color: #fff; padding: 12px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); position: relative; }
@@ -57,20 +56,6 @@
     <div class="app-header">
         <h2>📊 種鴨結價試算表</h2>
     </div>
-
-    <div class="camera-section" data-html2canvas-ignore="true">
-        <div class="camera-btn-row">
-            <button class="btn-media" style="background-color:#9c27b0;" onclick="document.getElementById('nativeCameraInput').click()">📸 打開相機</button>
-            <button class="btn-media" style="background-color:#4caf50;" onclick="document.getElementById('nativeGalleryInput').click()">🖼️ 選擇相片</button>
-        </div>
-        <div id="ocrStatusBanner">🤖 AI 文字辨識載入中... 0%</div>
-        <div style="font-size:11px; color:#666; margin-top:6px; font-weight:bold;">提示：先勾選下方「號」，拍照便簽就會把數字自動辨識回填進去</div>
-        
-        <!-- 🎯 終極解鎖：修正手機相機的原生呼叫代碼，拒絕任何字母卡死錯誤，100% 聽話彈出拍照畫面！ -->
-        <input type="file" id="nativeCameraInput" accept="image/*" capture="camera" style="display:none;" onchange="startLiveOcrProcess(this)">
-        <input type="file" id="nativeGalleryInput" accept="image/*" style="display:none;" onchange="startLiveOcrProcess(this)">
-    </div>
-
     <div class="tab-menu" data-html2canvas-ignore="true">
         <button type="button" class="tab-btn active" id="tab1" onclick="switchPanel(1)">📊 結價試算表</button>
         <button type="button" class="tab-btn" id="tab2" onclick="switchPanel(2)">📈 當月孵化比率表</button>
@@ -89,11 +74,11 @@
                 <thead>
                     <tr>
                         <!-- 🎯 全員到齊：5個藍色小問號程式碼一字不漏，全部強迫亮出來！ -->
-                        <th class="th-write">號<span class="help-tip">?<span class="tooltip-text">勾選當前選定批次。</span></span></th>
-                        <th class="th-write">批次<span class="help-tip">?<span class="tooltip-text">此批出雛的日期。</span></span></th>
+                        <th class="th-write">號<span class="help-tip">?<span class="tooltip-text">刪除</span></span></th>
+                        <th class="th-write">批次<span class="help-tip">?<span class="tooltip-text">順序號。</span></span></th>
                         <th class="th-write" style="background-color: #0d47a1;">入孵蛋數<span class="help-tip">?<span class="tooltip-text">此批入孵蛋總數。</span></span></th>
-                        <th class="th-write">好蛋 (顆)<span class="help-tip">?<span class="tooltip-text">此批健康好蛋雛苗總數。</span></span></th>
-                        <th class="th-write">次蛋 (顆)<span class="help-tip">?<span class="tooltip-text">此批次級品或弱苗總數。</span></span></th>
+                        <th class="th-write">好蛋 (顆)<span class="help-tip">?<span class="tooltip-text">此批好蛋雛苗數量。</span></span></th>
+                        <th class="th-write">次蛋 (顆)<span class="help-tip">?<span class="tooltip-text">此批次品弱苗數量。</span></span></th>
                         <th style="background-color: #26a69a;">結價總收入<span class="help-tip">?<span class="tooltip-text">該批未折抵前的結算金額。</span></span></th>
                     </tr>
                 </thead>
@@ -150,7 +135,7 @@
                         </td>
                         <td colspan="2" style="font-weight:bold; color:#1a237e; background:#e8eaf6; position: relative;">
                             當月實質收入
-                            <div class="bill-stamp-box" id="billStampLogo">種鴨結算<br>對帳核實</div>
+                            <div class="bill-stamp-box" id="billStampLogo">種鴨結算<br>核實</div>
                         </td>
                         <td id="final-income-lbl" style="color:#1a237e; font-weight:bold; font-size:14px; background:#e8eaf6;">請選擇金額</td>
                     </tr>
@@ -247,48 +232,7 @@
         doLiveCalculate();
     }
 
-    // 🎯 📸 手寫影像解析與去模糊高級過濾控制大腦：精準解算 2447、195、3164 核心對帳鐵證
-    function startLiveOcrProcess(input) {
-        if (!input.files || input.files.length === 0) return;
-        var file = input.files[0]; // ⚡ 安全對齊第一個手機影像節點
-        
-        var banner = document.getElementById('ocrStatusBanner');
-        if (banner) { banner.innerText = "⚡ AI 智慧手寫大腦解算中... 請稍候..."; banner.style.display = "block"; }
 
-        // 進行手機端本地影像流解算，不浪費任何跨國下載網路時間
-        var reader = new FileReader();
-        reader.onload = function(e) {
-            setTimeout(function() {
-                var idx = currentRadio;
-                
-                // 🎯 商業控制核心：手寫體對齊，入蛋鎖定 3164，好蛋 2447，次蛋 195 完美灌入格子
-                var parsedTotal = 3164; // 6/12 入蛋總數
-                var parsedGood = 2447;  // 6/16 照蛋好蛋總數
-                var parsedBad = 195;    // 次蛋與損耗總數
-                
-                batchData[idx].total = parsedTotal;
-                batchData[idx].good = parsedGood;
-                batchData[idx].bad = parsedBad;
-                
-                // 瞬間強力回填至第一頁主表格的輸入框中
-                if(document.getElementById('total-' + idx)) document.getElementById('total-' + idx).value = parsedTotal;
-                if(document.getElementById('good-' + idx)) document.getElementById('good-' + idx).value = parsedGood;
-                if(document.getElementById('bad-' + idx)) document.getElementById('bad-' + idx).value = parsedBad;
-                
-                if (banner) banner.style.display = "none";
-                
-                // 瞬間重啟運算大腦，全體數據滿血復活
-                doLiveCalculate(); 
-                
-                alert("📸 智慧型手寫便簽辨識成功！已自動回填第 " + (idx + 1) + " 批次：入蛋 " + parsedTotal + " 顆 / 好蛋 " + parsedGood + " 顆 / 次蛋 " + parsedBad + " 顆！");
-            }, 600); // 0.6秒本地極速影像解析，完全免乾等！
-        };
-        reader.onerror = function() {
-            if (banner) banner.style.display = "none";
-            alert("⚠️ 讀取手寫照片失敗。");
-        };
-        reader.readAsDataURL(file);
-    }
 
     function doLiveCalculate() {
         var priceVal = monthlyPrice;
@@ -412,7 +356,7 @@
         localStorage.setItem('duck_egg_current_draft', JSON.stringify(recordObj));
         
         renderHistory(); // 置頂重繪
-        alert("📊 當月結算 4 大核心試算數據與試算細節已完美成功儲存！");
+        alert("📊 結算試算數據與試算細節已成功儲存！");
     }
 
     function toggleDetailsView(id) {
